@@ -6,6 +6,8 @@ import EventItemView from '../view/event-item-view';
 import EventsListView from '../view/event-list-view';
 import NewEventFormView from '../view/new-event-form-view';
 
+const MAX_COUNT_ITEMS = 3;
+
 export default class MainPresenter {
   constructor() {
     this.tripEvents = document.querySelector('.trip-events');
@@ -19,7 +21,7 @@ export default class MainPresenter {
     render(this.eventsList, this.tripEvents);
     render(new NewEventFormView(), this.eventsList.getElement());
     render(new EditEventFormView(), this.eventsList.getElement(), RenderPosition.AFTERBEGIN);
-    for(let i = 0; i < 3; i++) {
+    for(let i = 0; i < MAX_COUNT_ITEMS; i++) {
       render(new EventItemView(), this.eventsList.getElement());
     }
   }
