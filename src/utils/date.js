@@ -15,15 +15,22 @@ export function formatTime(dateString) {
 
 export function getDuration(dateFrom, dateTo) {
   const diffMs = new Date(dateTo) - new Date(dateFrom);
-  const minutes = Math.floor(diffMs / 60000);
-  const hours = Math.floor(minutes / 60);
-  const restMinutes = minutes % 60;
+  const totalMinutes = Math.floor(diffMs / 60000);
+  const totalHours = Math.floor(totalMinutes / 60);
 
-  if (hours === 0) {
-    return `${restMinutes}M`;
+  const minutes = totalMinutes % 60;
+  const hours = totalHours % 24;
+  const days = Math.floor(totalHours / 24);
+
+  if (totalHours === 0) {
+    return `${minutes}M`;
   }
 
-  return `${String(hours).padStart(2, '0')}H ${String(restMinutes).padStart(2, '0')}M`;
+  if (days === 0) {
+    return `${String(totalHours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+  }
+
+  return `${String(days).padStart(2, '0')}D ${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
 }
 
 export function formatDateForEditForm(dateString) {
