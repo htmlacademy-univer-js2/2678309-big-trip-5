@@ -1,5 +1,7 @@
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { formatDateForEditForm } from '../utils/date';
+import { destinations } from '../mock/destinations';
+import { offers as offersByType } from '../mock/offers';
 
 function createEditEventFormTemplate(point, destination, offers) {
   const dateFrom = formatDateForEditForm(point.dateFrom);
@@ -127,33 +129,44 @@ function createEditEventFormTemplate(point, destination, offers) {
             </li>`;
 }
 
-export default class EditEventFormView extends AbstractView {
-  #point;
-  #destination;
-  #offers;
+export default class EditEventFormView extends AbstractStatefulView {
   #handleFormSubmit;
   #handleCloseClick;
 
   constructor({ point, destination, offers, onFormSubmit, onCloseClick }) {
     super();
-    this.#point = point;
-    this.#destination = destination;
-    this.#offers = offers;
+    this._state = { point, destination, offers };
     this.#handleFormSubmit = onFormSubmit;
     this.#handleCloseClick = onCloseClick;
-
-    this.element
-      .querySelector('form')
-      .addEventListener('submit', () => {
-        this.#handleFormSubmit();
-      });
-
-    this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#handleCloseClick);
+    this._restoreHandlers();
   }
 
   get template() {
-    return createEditEventFormTemplate(this.#point, this.#destination, this.#offers);
+    const { point, destination, offers } = this._state;
+    return createEditEventFormTemplate(point, destination, offers);
+  }
+
+  #typeChangeHandler = (evt) => {
+    const newType = evt.target.value;
+    this.updateElement({
+      point: {
+        ...this._state.point,
+        type: newType
+      },
+      offers: offersByType[newType]
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    const destinationName = evt.target.value;
+    const destination = Object.values(destinations).find((d) => d.name === destinationName);
+    this.updateElement({destination});
+  };
+
+  _restoreHandlers() {
+    this.element.querySelector('form').addEventListener('submit', this.#handleFormSubmit);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handleCloseClick);
+    this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
   }
 }
