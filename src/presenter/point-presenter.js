@@ -16,12 +16,14 @@ export default class PointPresenter {
   #editView = null;
   #onDataChange = null;
   #onModeChange = null;
+  #onDelete = null;
   #mode = Mode.DEFAULT;
 
-  constructor(container, onDataChange, onModeChange) {
+  constructor(container, onDataChange, onModeChange, onDelete) {
     this.#container = container;
     this.#onDataChange = onDataChange;
     this.#onModeChange = onModeChange;
+    this.#onDelete = onDelete;
   }
 
   init(point) {
@@ -39,8 +41,9 @@ export default class PointPresenter {
       point,
       destination: destinations[point.destination],
       offers: offers[point.type],
-      onFormSubmit: this.#replaceToEvent,
-      onCloseClick: this.#replaceToEvent
+      onFormSubmit: this.#handleFormSubmit,
+      onCloseClick: this.#replaceToEvent,
+      onDeleteClick: this.#handleDeleteClick
     });
 
     render(this.#eventView, this.#container);
@@ -70,6 +73,15 @@ export default class PointPresenter {
   #handleFavoriteClick = () => {
     const updatedPoint = { ...this.#point, isFavorite: !this.#point.isFavorite };
     this.#onDataChange(updatedPoint);
+  };
+
+  #handleFormSubmit = (updatedPoint) => {
+    this.#replaceToEvent();
+    this.#onDataChange(updatedPoint, { reorder: true });
+  };
+
+  #handleDeleteClick = () => {
+    this.#onDelete?.(this.#point.id);
   };
 
   #replaceToEdit = () => {

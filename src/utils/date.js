@@ -43,3 +43,12 @@ export function formatDateForEditForm(dateString) {
 
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
+
+/** Парсит строку формы "DD/MM/YY HH:mm" в ISO "YYYY-MM-DDTHH:mm" */
+export function parseDateFromEditForm(str) {
+  const [datePart, timePart] = str.trim().split(' ');
+  const [day, month, yearShort] = datePart.split('/');
+  const [hours, minutes] = (timePart || '00:00').split(':');
+  const year = yearShort.length === 2 ? `20${yearShort}` : yearShort;
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hours.padStart(2, '0')}:${(minutes || '0').padStart(2, '0')}`;
+}

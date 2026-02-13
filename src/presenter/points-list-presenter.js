@@ -59,12 +59,16 @@ export default class PointsListPresenter {
   #renderPoints() {
     const points = this.#getSortedPoints();
 
-    const handlePointChange = (updatedPoint) => {
+    const handlePointChange = (updatedPoint, options = {}) => {
       const newData = this.#pointsModel.updatePoint(updatedPoint);
-      const presenter = this.#pointPresenters.get(newData.id);
-
-      if (presenter) {
-        presenter.updatePoint(newData);
+      if (options.reorder) {
+        this.#clearPoints();
+        this.#renderPoints();
+      } else {
+        const presenter = this.#pointPresenters.get(newData.id);
+        if (presenter) {
+          presenter.updatePoint(newData);
+        }
       }
     };
 
@@ -72,11 +76,18 @@ export default class PointsListPresenter {
       this.#pointPresenters.forEach((presenter) => presenter.resetView());
     };
 
+    const handleDelete = (pointId) => {
+      this.#pointsModel.deletePoint(pointId);
+      this.#clearPoints();
+      this.#renderPoints();
+    };
+
     points.forEach((point) => {
       const pointPresenter = new PointPresenter(
         this.#eventsList.element,
         handlePointChange,
-        handleModeChange
+        handleModeChange,
+        handleDelete
       );
 
       pointPresenter.init(point);
